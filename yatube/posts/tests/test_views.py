@@ -164,6 +164,7 @@ class PostViewsTests(TestCase):
                 form_field = response.context.get('form').fields.get(value)
                 self.assertIsInstance(form_field, expected)
 
+
 class PaginatorViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -242,6 +243,7 @@ class PaginatorViewsTest(TestCase):
             NUMBER_OF_POSTS_CREATED - POSTS_NUMBER
         )
 
+
 class СacheTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -278,6 +280,7 @@ class СacheTest(TestCase):
         response = self.authorized_client.get(reverse('posts:index'))
         self.assertNotEqual(response_before.content, response.content)
 
+
 class FollowTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -306,29 +309,37 @@ class FollowTest(TestCase):
 
     def test_auth_follow(self):
         self.authorized_client.get(
-            reverse('posts:profile_follow',
-            kwargs={'username': self.user_not_author.username}
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': self.user_not_author.username},
             )
         )
         self.assertIs(
-            Follow.objects.filter(user=self.user, author=self.user_not_author).exists(),
+            Follow.objects.filter(
+                user=self.user, 
+                author=self.user_not_author
+            ).exists(),
             True
         )
 
         self.authorized_client.get(
-            reverse('posts:profile_unfollow',
-            kwargs={'username': self.user_not_author.username}
+            reverse(
+                'posts:profile_unfollow',
+                kwargs={'username': self.user_not_author.username},
             )
         )
         self.assertIs(
-            Follow.objects.filter(user=self.user, author=self.user_not_author).exists(),
+            Follow.objects.filter(
+                user=self.user, 
+                author=self.user_not_author
+            ).exists(),
             False
         )
 
     def test_new_post(self):
         Follow.objects.create(user=self.user, author=self.user_not_author)
         post = Post.objects.create(
-            author=self.user_not_author, 
+            author=self.user_not_author,
             text='qwerty',
             group=self.group,
         )
@@ -342,4 +353,3 @@ class FollowTest(TestCase):
         self.authorized_client.force_login(any_user)
         response = self.authorized_client.get(reverse('posts:follow_index'))
         self.assertNotIn(post, response.context['page_obj'].object_list)
-
