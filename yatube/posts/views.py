@@ -90,8 +90,8 @@ def post_edit(request, post_id):
     if post.author != request.user:
         return redirect('posts:profile', request.user.username)
     form = PostForm(
-        request.POST or None, 
-        files=request.FILES or None, 
+        request.POST or None,
+        files=request.FILES or None,
         instance=post
     )
     if form.is_valid():

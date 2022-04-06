@@ -272,7 +272,11 @@ class СacheTest(TestCase):
 
     def test_cache(self):
         response_before = self.authorized_client.get(reverse('posts:index'))
-        Post.objects.create(text='Кештекст', author=self.user, group=self.group)
+        Post.objects.create(
+            text='Кештекст',
+            author=self.user,
+            group=self.group
+        )
         response_after = self.authorized_client.get(reverse('posts:index'))
         self.assertEqual(response_before.content, response_after.content)
 
@@ -316,7 +320,7 @@ class FollowTest(TestCase):
         )
         self.assertIs(
             Follow.objects.filter(
-                user=self.user, 
+                user=self.user,
                 author=self.user_not_author
             ).exists(),
             True
@@ -330,7 +334,7 @@ class FollowTest(TestCase):
         )
         self.assertIs(
             Follow.objects.filter(
-                user=self.user, 
+                user=self.user,
                 author=self.user_not_author
             ).exists(),
             False
