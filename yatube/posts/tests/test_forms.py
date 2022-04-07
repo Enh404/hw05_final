@@ -142,7 +142,10 @@ class PostFormTests(TestCase):
             ),
         )
         self.assertEqual(Comment.objects.count(), comments_count + 1)
-        self.assertEqual(response.context['comments'][0].text, 'Тестовый комментарий')
+        self.assertEqual(
+            response.context['comments'][0].text,
+            'Тестовый комментарий'
+        )
         self.assertEqual(response.context['comments'][0].post, self.post)
         self.assertEqual(response.context['comments'][0].author, self.user)
 
