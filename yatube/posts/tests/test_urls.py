@@ -10,6 +10,7 @@ class StaticURLTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create_user(username='Nobody')
+        cls.user_not_author = User.objects.create_user(username='test_user')
         cls.group = Group.objects.create(
             title='Тестовый заголовок',
             slug='test-slug',
@@ -71,6 +72,46 @@ class StaticURLTests(TestCase):
     def test_unexisting_page(self):
         response = self.guest_client.get('/unexisting_page/')
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
+    def test_follow_authorized_client(self):
+        response = self.authorized_client.get('/follow/')
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_follow_guest_client(self):
+        response = self.guest_client.get('/follow/')
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+    def test_profile_follow_authorized_client(self):
+        response = self.authorized_client.get(
+            f'/profile/{StaticURLTests.user_not_author.username}/follow/'
+        )
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+    def test_profile_follow_guest_client(self):
+        response = self.guest_client.get(
+            f'/profile/{StaticURLTests.user_not_author.username}/follow/'
+        )
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+    def test_profile_unfollow_authorized_client(self):
+        self.authorized_client.get(
+            f'/profile/{StaticURLTests.user_not_author.username}/follow/'
+        )
+        response = self.authorized_client.get(
+            f'/profile/{StaticURLTests.user_not_author.username}/unfollow/'
+        )
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+    def test_profile_unfollow_guest_client(self):
+        # не уверен в надобности теста, ведь чтобы отписаться, необходимо
+        # сначала подписаться, чего guest_client не может
+        self.guest_client.get(
+            f'/profile/{StaticURLTests.user_not_author.username}/follow/'
+        )
+        response = self.guest_client.get(
+            f'/profile/{StaticURLTests.user_not_author.username}/unfollow/'
+        )
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_urls_uses_correct_template(self):
         cache.clear()

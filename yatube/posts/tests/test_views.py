@@ -280,7 +280,7 @@ class СacheTest(TestCase):
         response_after = self.authorized_client.get(reverse('posts:index'))
         self.assertEqual(response_before.content, response_after.content)
 
-        sleep(21)
+        cache.clear()
         response = self.authorized_client.get(reverse('posts:index'))
         self.assertNotEqual(response_before.content, response.content)
 
@@ -318,12 +318,11 @@ class FollowTest(TestCase):
                 kwargs={'username': self.user_not_author.username},
             )
         )
-        self.assertIs(
+        self.assertTrue(
             Follow.objects.filter(
                 user=self.user,
                 author=self.user_not_author
-            ).exists(),
-            True
+            ).exists()
         )
 
         self.authorized_client.get(
@@ -332,12 +331,11 @@ class FollowTest(TestCase):
                 kwargs={'username': self.user_not_author.username},
             )
         )
-        self.assertIs(
+        self.assertFalse(
             Follow.objects.filter(
                 user=self.user,
                 author=self.user_not_author
-            ).exists(),
-            False
+            ).exists()
         )
 
     def test_new_post(self):

@@ -43,11 +43,6 @@ class PostFormTests(TestCase):
             group=cls.group,
             image=uploaded,
         )
-        cls.comment = Comment.objects.create(
-            text='Тестовый комментарий',
-            post=cls.post,
-            author=cls.user_not_author,
-        )
 
     @classmethod
     def tearDownClass(cls):
@@ -130,7 +125,7 @@ class PostFormTests(TestCase):
         comments_count = Comment.objects.count()
         form_data = {
             'text': 'Тестовый комментарий',
-            'author': self.user_not_author,
+            'post': self.post,
         }
         response = self.authorized_client.post(
             reverse(
@@ -147,9 +142,23 @@ class PostFormTests(TestCase):
             ),
         )
         self.assertEqual(Comment.objects.count(), comments_count + 1)
-        self.assertTrue(
-            Comment.objects.filter(
-                text='Тестовый комментарий',
-                author=self.user_not_author
-            ).exists()
+        self.assertEqual(response.context['comments'][0].text, 'Тестовый комментарий')
+        self.assertEqual(response.context['comments'][0].post, self.post)
+        self.assertEqual(response.context['comments'][0].author, self.user)
+
+    def test_guest_client_create_post(self):
+        comments_count = Comment.objects.count()
+        form_data = {
+            'text': 'Тестовый коммент',
+            'post': self.post,
+        }
+        response = self.guest_client.post(
+            reverse(
+                'posts:add_comment',
+                kwargs={'post_id': self.post.pk},
+            ),
+            data=form_data,
+            follow=True
         )
+        self.assertEqual(Comment.objects.count(), comments_count)
+        self.assertEqual(response.status_code, HTTPStatus.OK)

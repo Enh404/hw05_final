@@ -16,8 +16,6 @@ def index(request):
     page_obj = paginator.get_page(page_number)
     context = {
         'page_obj': page_obj,
-        'index': True,
-        'follow': False,
     }
     return render(request, 'posts/index.html', context)
 
@@ -37,7 +35,7 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    post = author.posts.order_by('-pub_date')
+    post = author.posts.all()
     paginator = Paginator(post, POSTS_NUMBER)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -50,7 +48,6 @@ def profile(request, username):
             author=author,
             user=request.user
         ).exists()
-        return render(request, 'posts/profile.html', context)
     return render(request, 'posts/profile.html', context)
 
 
@@ -72,7 +69,9 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     template = 'posts/create_post.html'
-    form = PostForm(request.POST or None)
+    form = PostForm(request.POST or None,
+        files=request.FILES or None,
+    )
     if form.is_valid():
         post = form.save(commit=False)
         post.author = request.user
@@ -119,22 +118,19 @@ def add_comment(request, post_id):
 @login_required
 def follow_index(request):
     user = request.user
-    authors = user.follower.values_list('author')
-    post_list = Post.objects.filter(author__id__in=authors)
+    post_list = Post.objects.filter(author__following__user=user)
     paginator = Paginator(post_list, POSTS_NUMBER)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
         'page_obj': page_obj,
-        'index': False,
-        'follow': True,
     }
     return render(request, 'posts/follow.html', context)
 
 
 @login_required
 def profile_follow(request, username):
-    author = User.objects.get(username=username)
+    author = get_object_or_404(User, username=username)
     user = request.user
     if author != user:
         Follow.objects.get_or_create(user=user, author=author)
