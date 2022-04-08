@@ -55,9 +55,10 @@ class PostFormTests(TestCase):
         self.authorized_client.force_login(self.user)
 
     def test_create_post(self):
+        # здесь тоже постарался исправить как в test_create_comment
         posts_count = Post.objects.count()
         form_data = {
-            'text': 'Тестовый текст',
+            'text': 'Тестовый текстовый текст',
             'group': self.group.pk,
             'image': self.post.image,
         }
@@ -73,13 +74,12 @@ class PostFormTests(TestCase):
             ),
         )
         self.assertEqual(Post.objects.count(), posts_count + 1)
-        self.assertTrue(
-            Post.objects.filter(
-                text='Тестовый текст',
-                group=self.group.pk,
-                image=self.post.image,
-            ).exists()
+        self.assertEqual(
+            self.group.posts.latest('pub_date').text,
+            'Тестовый текстовый текст'
         )
+        self.assertEqual(self.group.posts.latest('pub_date').group, self.group)
+        self.assertEqual(self.user.posts.latest('pub_date').author, self.user)
 
     def test_edit_post(self):
         form_data = {
@@ -143,11 +143,11 @@ class PostFormTests(TestCase):
         )
         self.assertEqual(Comment.objects.count(), comments_count + 1)
         self.assertEqual(
-            response.context['comments'][0].text,
-            'Тестовый комментарий'
+            self.post.comments.get().post,
+            self.post
         )
-        self.assertEqual(response.context['comments'][0].post, self.post)
-        self.assertEqual(response.context['comments'][0].author, self.user)
+        self.assertEqual(self.post.comments.get().text, 'Тестовый комментарий')
+        self.assertEqual(self.user.comments.get().author, self.user)
 
     def test_guest_client_create_post(self):
         comments_count = Comment.objects.count()
