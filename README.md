@@ -32,11 +32,13 @@
 Устанавливаем зависимости:
 
 `python -m pip install --upgrade pip`
+
 `pip install -r requirements.txt`
 
 Применяем миграции:
 
 `python yatube/manage.py makemigrations`
+
 `python yatube/manage.py migrate`
 
 Создаем супер пользователя:
