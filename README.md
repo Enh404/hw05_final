@@ -7,42 +7,42 @@
 # Настройка и запуск на ПК
 Клонируем проект:
 
-git clone https://github.com/Enh404/hw05_final.git
+`git clone https://github.com/Enh404/hw05_final.git`
 
 или
 
-git clone git@github.com:Enh404/hw05_final.git
+`git clone git@github.com:Enh404/hw05_final.git`
 
 Переходим в папку с проектом:
 
-cd hw05_final
+`cd hw05_final`
 
 Устанавливаем виртуальное окружение:
 
-python -m venv venv
+`python -m venv venv`
 
 Активируем виртуальное окружение:
 
-source venv/Scripts/activate
+`source venv/Scripts/activate`
 
 Для деактивации виртуального окружения выполним (после работы):
 
-deactivate
+`deactivate`
 
 Устанавливаем зависимости:
 
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+`python -m pip install --upgrade pip`
+`pip install -r requirements.txt`
 
 Применяем миграции:
 
-python yatube/manage.py makemigrations
-python yatube/manage.py migrate
+`python yatube/manage.py makemigrations`
+`python yatube/manage.py migrate`
 
 Создаем супер пользователя:
 
-python yatube/manage.py createsuperuser
+`python yatube/manage.py createsuperuser`
 
 При желании делаем коллекцию статики (часть статики уже загружена в репозиторий в виде исключения):
 
-python yatube/manage.py collectstatic
+`python yatube/manage.py collectstatic`
